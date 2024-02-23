@@ -1,19 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/customerSchema");
-var moment = require("moment");
 const userController = require("../controllers/userController");
+const AuthUser = require("../models/authUser");
 
 router.get("/", (req, res) => {
-  res.render("welcome")
+  res.render("welcome");
 });
 
 router.get("/login", (req, res) => {
-  res.render("auth/login")
+  res.render("auth/login");
 });
 
 router.get("/signup", (req, res) => {
-  res.render("auth/signup")
+  res.render("auth/signup");
+});
+
+router.post("/signup", async (req, res) => {
+  console.log(req.body);
+  try {
+    const result = await AuthUser.create(req.body);
+    console.log(result);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 router.get("/home", userController.user_index_get);
