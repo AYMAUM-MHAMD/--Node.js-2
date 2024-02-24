@@ -19,7 +19,6 @@ router.post("/signup", async (req, res) => {
   console.log(req.body);
   try {
     const result = await AuthUser.create(req.body);
-    console.log(result);
   } catch (error) {
     console.log(error);
   }
