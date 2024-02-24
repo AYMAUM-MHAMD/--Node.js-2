@@ -12,6 +12,10 @@ app.use(methodOverride("_method"));
 const allRouters = require("./routes/allRouters");
 const addUserRouter = require("./routes/addUser");
 
+//  cookie-Parser
+var cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
 const path = require("path");
 const livereload = require("livereload");
 const liveReloadServer = livereload.createServer();

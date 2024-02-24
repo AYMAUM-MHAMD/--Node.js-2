@@ -4,6 +4,9 @@ const userController = require("../controllers/userController");
 const AuthUser = require("../models/authUser");
 const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
+const requireAuth = require("../middleware/middleware");
+
+
 
 router.get("/", (req, res) => {
   res.render("welcome");
@@ -37,22 +40,22 @@ router.post("/login", async (req, res) => {
     if (match) {
       console.log("correct email & password");
       var token = jwt.sign({ id: loginUser._id }, "c4a.dev");
-      console.log(token)
+      console.log(token);
       res.cookie("jwt", token, { httpOnly: true, maxAge: 86400000 });
-      res.redirect("/home")
+      res.redirect("/home");
     } else {
       console.log("wrong password");
     }
   }
 });
 
-router.get("/home", userController.user_index_get);
+router.get("/home", requireAuth, userController.user_index_get);
 
-router.get("/edit/:id", userController.user_edit_get);
+router.get("/edit/:id", requireAuth, userController.user_edit_get);
 
-router.get("/view/:id", userController.user_view_get);
+router.get("/view/:id", requireAuth, userController.user_view_get);
 
-router.post("/search", userController.user_search_post);
+router.post("/search", requireAuth, userController.user_search_post);
 
 router.delete("/edit/:id", userController.user_delete);
 
