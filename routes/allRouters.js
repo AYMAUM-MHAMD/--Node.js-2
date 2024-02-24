@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const AuthUser = require("../models/authUser");
+const bcrypt = require("bcrypt");
 
 router.get("/", (req, res) => {
   res.render("welcome");
@@ -16,11 +17,28 @@ router.get("/signup", (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  console.log(req.body);
   try {
     const result = await AuthUser.create(req.body);
   } catch (error) {
     console.log(error);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  console.log("__________________________________________");
+
+  const loginUser = await AuthUser.findOne({ email: req.body.email });
+  console.log(loginUser);
+
+  if (loginUser == null) {
+    console.log("this email not found in DATABASE");
+  } else {
+    const match = await bcrypt.compare(req.body.password, loginUser.password);
+    if (match) {
+      console.log("correct email & password");
+    } else {
+      console.log("wrong password");
+    }
   }
 });
 
