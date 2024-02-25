@@ -11,10 +11,11 @@ var methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 const allRouters = require("./routes/allRouters");
 const addUserRouter = require("./routes/addUser");
+app.use(express.json());
 
 //  cookie-Parser
-var cookieParser = require('cookie-parser')
-app.use(cookieParser())
+var cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 const path = require("path");
 const livereload = require("livereload");
@@ -44,4 +45,4 @@ mongoose
   });
 
 app.use(allRouters);
-app.use("/user",addUserRouter);
+app.use("/user", addUserRouter);

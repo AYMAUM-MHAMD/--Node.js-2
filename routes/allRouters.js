@@ -44,16 +44,19 @@ router.post(
         "_____________________________________________________________"
       );
       if (objError.errors.length > 0) {
-        return console.log("invalid Email OR invalid Password");
+        return res.json({ arrValidationError: objError.errors });
       }
 
       const isCurrentEmail = await AuthUser.findOne({ email: req.body.email });
       console.log(isCurrentEmail);
 
       if (isCurrentEmail) {
-        return console.log("Email already exist");
+        return res.json({ existEmail: "Email already exist" });
       }
-      const result = await AuthUser.create(req.body);
+      const newUser = await AuthUser.create(req.body);
+      var token = jwt.sign({ id: newUser._id }, "c4a.dev");
+      res.cookie("jwt", token, { httpOnly: true, maxAge: 86400000 });
+      res.json({id : newUser._id})
     } catch (error) {
       console.log(error);
     }
