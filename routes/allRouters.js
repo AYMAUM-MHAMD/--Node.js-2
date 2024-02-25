@@ -4,9 +4,15 @@ const userController = require("../controllers/userController");
 const AuthUser = require("../models/authUser");
 const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
-const requireAuth = require("../middleware/middleware");
+const {requireAuth} = require("../middleware/middleware");
+const {checkIfUser} = require("../middleware/middleware");
 
+router.get("*", checkIfUser);
 
+router.get("/signout", (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
+  res.redirect("/");
+});
 
 router.get("/", (req, res) => {
   res.render("welcome");
@@ -22,6 +28,10 @@ router.get("/signup", (req, res) => {
 
 router.post("/signup", async (req, res) => {
   try {
+  const isCurrentEmail = await  AuthUser.findOne( {email : req.body.email})
+  if (isCurrentEmail) {
+    return console.log("isCurrentEmail")
+  }
     const result = await AuthUser.create(req.body);
   } catch (error) {
     console.log(error);
