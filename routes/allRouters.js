@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
 const { requireAuth } = require("../middleware/middleware");
 const { checkIfUser } = require("../middleware/middleware");
+const { check, validationResult } = require("express-validator");
 
 router.get("*", checkIfUser);
 
@@ -26,34 +27,38 @@ router.get("/signup", (req, res) => {
   res.render("auth/signup");
 });
 
-router.post("/signup", async (req, res) => {
-  try {
-    const isCurrentEmail = await AuthUser.findOne({ email: req.body.email });
-    if (isCurrentEmail) {
-      return console.log("isCurrentEmail"), res.redirect("/signup");
-    }
-    const result = await AuthUser.create(req.body);
-
-    const loginUser = await AuthUser.findOne({ email: req.body.email });
-
-    if (loginUser == null) {
-      console.log("this email not found in DATABASE");
-    } else {
-      const match = await bcrypt.compare(req.body.password, loginUser.password);
-      if (match) {
-        console.log("correct email & password");
-        var token = jwt.sign({ id: loginUser._id }, "c4a.dev");
-        console.log(token);
-        res.cookie("jwt", token, { httpOnly: true, maxAge: 86400000 });
-        res.redirect("/home");
-      } else {
-        console.log("wrong password");
+router.post(
+  "/signup",
+  [
+    check("email", "Please provide a valid email").isEmail(),
+    check(
+      "password",
+      "Password must be at least 8 characters with 1 upper case letter and 1 number"
+    ).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/),
+  ],
+  async (req, res) => {
+    try {
+      const objError = validationResult(req);
+      console.log(objError.errors);
+      console.log(
+        "_____________________________________________________________"
+      );
+      if (objError.errors.length > 0) {
+        return console.log("invalid Email OR invalid Password");
       }
+
+      const isCurrentEmail = await AuthUser.findOne({ email: req.body.email });
+      console.log(isCurrentEmail);
+
+      if (isCurrentEmail) {
+        return console.log("Email already exist");
+      }
+      const result = await AuthUser.create(req.body);
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
   }
-});
+);
 
 router.post("/login", async (req, res) => {
   console.log("__________________________________________");
