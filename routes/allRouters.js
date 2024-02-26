@@ -38,11 +38,13 @@ router.post(
   ],
   async (req, res) => {
     try {
+      // check validation (email & password)
       const objError = validationResult(req);
       if (objError.errors.length > 0) {
         return res.json({ arrValidationError: objError.errors });
       }
 
+      // check if the email already exist
       const isCurrentEmail = await AuthUser.findOne({ email: req.body.email });
 
       if (isCurrentEmail) {
@@ -59,23 +61,25 @@ router.post(
 );
 
 router.post("/login", async (req, res) => {
-  console.log("__________________________________________");
-
-  const loginUser = await AuthUser.findOne({ email: req.body.email });
+  try {
+    const loginUser = await AuthUser.findOne({ email: req.body.email });
 
   if (loginUser == null) {
-    console.log("this email not found in DATABASE");
+    return res.json({ notFoundEmail: "Email not found, try to sign up" });
   } else {
-    const match = await bcrypt.compare(req.body.password, loginUser.password);
+    const match = await bcrypt.compare(req.body.password, loginUser.password)
+
     if (match) {
-      console.log("correct email & password");
       var token = jwt.sign({ id: loginUser._id }, "c4a.dev");
-      console.log(token);
       res.cookie("jwt", token, { httpOnly: true, maxAge: 86400000 });
-      res.redirect("/home");
+      res.json({ id: loginUser._id });
     } else {
-      console.log("wrong password");
+      return res.json({ passwordError: `incorrect password for  ${req.body.email}` });
     }
+  }
+  } catch (error) {
+    console.log(error)
+    
   }
 });
 

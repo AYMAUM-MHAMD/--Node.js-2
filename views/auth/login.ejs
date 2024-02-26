@@ -52,6 +52,13 @@
     /*
  * Header
  */
+
+    #emailError,
+    #passwordError {
+      color: rgb(146, 24, 24);
+      margin-left: 0.4rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -67,14 +74,16 @@
         Log in
       </h1>
 
-      <form action="/login" method="post" class="text-start mx-auto mt-5" style="max-width: 22em;">
+      <form id="signupFrom" class="text-start mx-auto mt-5" style="max-width: 22em;">
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label">Email address</label>
           <input name="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+          <p id="emailError"></p>
         </div>
         <div class="mb-3">
           <label for="exampleInputPassword1" class="form-label">Password</label>
           <input name="password" type="password" class="form-control" id="exampleInputPassword1">
+          <p id="passwordError"></p>
         </div>
         <div class="mb-3 form-check">
           <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -90,6 +99,39 @@
       <p>Designed and developed by Ali Hassan © 2023</p>
     </footer>
   </div>
+  <script>
+    signupFrom.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      emailError.textContent = ""
+      passwordError.textContent = ""
+      const res = await fetch("/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: exampleInputEmail1.value,
+          password: exampleInputPassword1.value
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        },
+      });
+
+      const data = await res.json();
+      if (data.notFoundEmail) {
+        emailError.textContent = data.notFoundEmail
+      }
+
+      if (data.passwordError) {
+        
+        passwordError.textContent = data.passwordError
+      }
+
+      if (data.id) {
+        location.assign("/home")
+      }
+
+
+    })
+  </script>
   <script src="./js/bootstrap.bundle.min.js"></script>
 </body>
 
