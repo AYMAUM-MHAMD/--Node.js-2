@@ -17,6 +17,8 @@ app.use(express.json());
 var cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+require('dotenv').config()
+
 const path = require("path");
 const livereload = require("livereload");
 const liveReloadServer = livereload.createServer();
@@ -33,7 +35,7 @@ liveReloadServer.server.once("connection", () => {
 
 mongoose
   .connect(
-    "mongodb+srv://nikada1243:hXES9AuylRh3P66b@cluster0.qwn8pra.mongodb.net/all-data?retryWrites=true&w=majority"
+    process.env.MONGODB_URL
   )
   .then(() => {
     app.listen(port, () => {
